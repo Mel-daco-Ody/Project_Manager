@@ -2,6 +2,7 @@ import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import React from "react";
 import Colors from "../../constants/Colors";
 import { useRouter } from "expo-router";
+import MarkFav from "../MarkFav";
 
 export default function PetListItem({ pet }) {
   // console.log("Pet Image Url from firestore: " + pet.imageUrl);
@@ -19,7 +20,7 @@ export default function PetListItem({ pet }) {
     >
       <Image source={{ uri: pet?.imageUrl }} style={styles.image} />
       <View style={styles.favContainer}>
-      
+        <MarkFav pet={pet} color={"white"} />
       </View>
       <Text style={styles.name}>{pet.name}</Text>
       <View style={styles.infoContainer}>

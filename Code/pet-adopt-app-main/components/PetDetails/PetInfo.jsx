@@ -3,6 +3,7 @@ import { View, Text, Image, StyleSheet } from "react-native";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../config/FirebaseConfig";
 import Colors from "../../constants/Colors";
+import MarkFav from "../MarkFav";
 
 export default function PetInfo({ pet }) {
   const [imageUrl, setImageUrl] = useState(pet.imageUrl);
@@ -42,7 +43,7 @@ export default function PetInfo({ pet }) {
             {pet?.address}
           </Text>
         </View>
-        
+        <MarkFav pet={pet} />
       </View>
     </View>
   );

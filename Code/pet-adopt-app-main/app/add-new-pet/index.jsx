@@ -11,6 +11,8 @@ import {
   Platform,
   Alert,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Keyboard,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useNavigation, useRouter } from "expo-router";
@@ -49,12 +51,10 @@ export default function AddNewPet() {
     setCategoryList([]);
     const snapshot = await getDocs(collection(db, "Category"));
     const categories = snapshot.docs.map((doc) => doc.data());
-    // console.log(categories);
     setCategoryList(categories);
   };
 
   const imagePicker = async () => {
-    // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
@@ -62,14 +62,12 @@ export default function AddNewPet() {
       quality: 1,
     });
 
-    // console.log(result);
-
     if (!result.canceled) {
       setImage(result.assets[0].uri);
     }
   };
+
   const handleInputChange = (fieldName, fieldValue) => {
-    // console.log(fieldName, fieldValue);
     setFormData((prev) => ({
       ...prev,
       [fieldName]: fieldValue,
@@ -96,11 +94,9 @@ export default function AddNewPet() {
 
     uploadBytes(storageRef, blobImage)
       .then((snapshot) => {
-        // console.log("Image Uploaded");
       })
       .then((res) => {
         getDownloadURL(storageRef).then(async (downloadUrl) => {
-          // console.log("Image Url", downloadUrl);
           saveFormData(downloadUrl);
         });
       });
@@ -121,126 +117,135 @@ export default function AddNewPet() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.headerTitle}>Add New Pet for Adoption</Text>
-      {/* image picker container */}
-      <Pressable onPress={imagePicker}>
-        {!image ? (
-          <Image
-            source={require("./../../assets/images/placeHolder.jpg")}
-            style={styles.image}
-          />
-        ) : (
-          <Image source={{ uri: image }} style={styles.image} />
-        )}
-      </Pressable>
-      {/*Input Container for Pet Name */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.inputTextLabel}>Pet Name *</Text>
-        <TextInput
-          style={styles.inputText}
-          onChangeText={(value) => handleInputChange("name", value)}
-        />
-      </View>
-      {/* Input Picker Container for Pet Category */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.inputTextLabel}>Category *</Text>
-        <Picker
-          selectedValue={selectedCategory}
-          style={styles.inputText}
-          onValueChange={(itemValue, itemIndex) => {
-            setSelectedCategory(itemValue);
-            handleInputChange("category", itemValue);
-          }}
-        >
-          {categoryList.map((category, index) => (
-            <Picker.Item
-              key={index}
-              label={category.name}
-              value={category.name}
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 60 : 0}
+    >
+      <ScrollView contentContainerStyle={styles.scrollView} keyboardShouldPersistTaps="handled">
+        <Text style={styles.headerTitle}>Add New Pet for Adoption</Text>
+        {/* image picker container */}
+        <Pressable onPress={imagePicker}>
+          {!image ? (
+            <Image
+              source={require("./../../assets/images/placeHolder.jpg")}
+              style={styles.image}
             />
-          ))}
-        </Picker>
-      </View>
-      {/*Input Container for Pet Breed */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.inputTextLabel}>Breed *</Text>
-        <TextInput
-          style={styles.inputText}
-          onChangeText={(value) => handleInputChange("breed", value)}
-        />
-      </View>
-      {/*Input Container for Pet Age */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.inputTextLabel}>Age *</Text>
-        <TextInput
-          style={styles.inputText}
-          keyboardType="numeric"
-          onChangeText={(value) => handleInputChange("age", value)}
-        />
-      </View>
-      {/* Input Picker Container for Pet Gender */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.inputTextLabel}>Gender *</Text>
-        <Picker
-          style={styles.inputText}
-          selectedValue={gender}
-          onValueChange={(itemValue, itemIndex) => {
-            setGender(itemValue);
-            handleInputChange("sex", itemValue);
-          }}
-        >
-          <Picker.Item label="Male" value="male" />
-          <Picker.Item label="Female" value="female" />
-        </Picker>
-      </View>
+          ) : (
+            <Image source={{ uri: image }} style={styles.image} />
+          )}
+        </Pressable>
+        {/*Input Container for Pet Name */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputTextLabel}>Pet Name *</Text>
+          <TextInput
+            style={styles.inputText}
+            onChangeText={(value) => handleInputChange("name", value)}
+          />
+        </View>
+        {/* Input Picker Container for Pet Category */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputTextLabel}>Category *</Text>
+          <Picker
+            selectedValue={selectedCategory}
+            style={styles.inputText}
+            onValueChange={(itemValue, itemIndex) => {
+              setSelectedCategory(itemValue);
+              handleInputChange("category", itemValue);
+            }}
+          >
+            {categoryList.map((category, index) => (
+              <Picker.Item
+                key={index}
+                label={category.name}
+                value={category.name}
+              />
+            ))}
+          </Picker>
+        </View>
+        {/*Input Container for Pet Breed */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputTextLabel}>Breed *</Text>
+          <TextInput
+            style={styles.inputText}
+            onChangeText={(value) => handleInputChange("breed", value)}
+          />
+        </View>
+        {/*Input Container for Pet Age */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputTextLabel}>Age *</Text>
+          <TextInput
+            style={styles.inputText}
+            keyboardType="numeric"
+            onChangeText={(value) => handleInputChange("age", value)}
+          />
+        </View>
+        {/* Input Picker Container for Pet Gender */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputTextLabel}>Gender *</Text>
+          <Picker
+            style={styles.inputText}
+            selectedValue={gender}
+            onValueChange={(itemValue, itemIndex) => {
+              setGender(itemValue);
+              handleInputChange("sex", itemValue);
+            }}
+          >
+            <Picker.Item label="Male" value="male" />
+            <Picker.Item label="Female" value="female" />
+          </Picker>
+        </View>
 
-      {/*Input Container for Pet Weight */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.inputTextLabel}>Weight *</Text>
-        <TextInput
-          style={styles.inputText}
-          keyboardType="numeric"
-          onChangeText={(value) => handleInputChange("weight", value)}
-        />
-      </View>
-      {/*Input Container for Pet Address */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.inputTextLabel}>Address *</Text>
-        <TextInput
-          style={styles.inputText}
-          onChangeText={(value) => handleInputChange("address", value)}
-        />
-      </View>
-      {/*Input Container for Pet About */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.inputTextLabel}>About *</Text>
-        <TextInput
-          style={styles.inputText}
-          numberOfLines={5}
-          multiline={true}
-          onChangeText={(value) => handleInputChange("about", value)}
-        />
-      </View>
-      {/* Submit Button */}
-      <TouchableOpacity
-        disabled={loader}
-        style={styles.submitBtn}
-        onPress={onSubmit}
-      >
-        {loader ? (
-          <ActivityIndicator size={"large"} />
-        ) : (
-          <Text style={styles.submitText}>Submit</Text>
-        )}
-      </TouchableOpacity>
-    </ScrollView>
+        {/*Input Container for Pet Weight */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputTextLabel}>Weight *</Text>
+          <TextInput
+            style={styles.inputText}
+            keyboardType="numeric"
+            onChangeText={(value) => handleInputChange("weight", value)}
+          />
+        </View>
+        {/*Input Container for Pet Address */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputTextLabel}>Address *</Text>
+          <TextInput
+            style={styles.inputText}
+            onChangeText={(value) => handleInputChange("address", value)}
+          />
+        </View>
+        {/*Input Container for Pet About */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputTextLabel}>About *</Text>
+          <TextInput
+            style={styles.inputText}
+            numberOfLines={5}
+            multiline={true}
+            onChangeText={(value) => handleInputChange("about", value)}
+          />
+        </View>
+        {/* Submit Button */}
+        <TouchableOpacity
+          disabled={loader}
+          style={styles.submitBtn}
+          onPress={onSubmit}
+        >
+          {loader ? (
+            <ActivityIndicator size={"large"} />
+          ) : (
+            <Text style={styles.submitText}>Submit</Text>
+          )}
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  scrollView: {
     padding: 20,
+    height: 1500
   },
   headerTitle: {
     fontFamily: "outfit-medium",
@@ -264,19 +269,18 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: Colors.WHITE,
     borderRadius: 7,
-    // borderWidth: 1,
-    // borderColor: Colors.GRAY,
     fontFamily: "outfit-regular",
   },
   submitBtn: {
     padding: 15,
-    marginVertical: 10,
-    marginBottom: 50,
     backgroundColor: Colors.PRIMARY,
-    borderRadius: 7,
+    borderRadius: 10,
+    marginTop: 20,
+    alignItems: "center",
   },
   submitText: {
     fontFamily: "outfit-medium",
-    textAlign: "center",
+    color: Colors.WHITE,
+    fontSize: 16,
   },
 });
